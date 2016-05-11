@@ -58,8 +58,8 @@ public class JavaApplication1 {
         ArrayList<Double> accDataYfiltered = myBandPass(accDataY, fSampling);
         ArrayList<Double> accDataZfiltered = myBandPass(accDataZ, fSampling);
         
-        float fPrev = initialize( rN.subList(0,1000), accDataX.subList(0,1000),accDataY.subList(0,1000),
-                accDataZ.subList(0, 1000),fSampling);
+        //float fPrev = initialize( rN.subList(0,1000), accDataX.subList(0,1000),accDataY.subList(0,1000),
+         //       accDataZ.subList(0, 1000),fSampling);
         
         
         

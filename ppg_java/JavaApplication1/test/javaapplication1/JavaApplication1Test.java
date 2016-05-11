@@ -12,7 +12,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -43,6 +42,7 @@ public class JavaApplication1Test {
 
     /**
      * Test of main method, of class JavaApplication1.
+     * @throws java.lang.Exception
      */
     @Test
     public void testMain() throws Exception {
@@ -89,7 +89,7 @@ public class JavaApplication1Test {
         ArrayList<Double> mainSig = null;
         JavaApplication1 instance = new JavaApplication1();
         ArrayList<Double> expResult = null;
-        ArrayList<Double> result = instance.rlsFilter(lParameter, hSig, mainSig);
+        ArrayList<Double> result = JavaApplication1.rlsFilter(lParameter, hSig, mainSig);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -97,6 +97,7 @@ public class JavaApplication1Test {
 
     /**
      * Test of getArray method, of class JavaApplication1.
+     * @throws java.lang.Exception
      */
     @Test
     public void testGetArray() throws Exception {
