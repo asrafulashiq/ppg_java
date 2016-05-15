@@ -53,17 +53,7 @@ package javaapplication1;
      // precompute tables
      cos = new double[n/2];
      sin = new double[n/2];
- 
- //     for(int i=0; i<n/4; i++) {
- //       cos[i] = Math.cos(-2*Math.PI*i/n);
- //       sin[n/4-i] = cos[i];
- //       cos[n/2-i] = -cos[i];
- //       sin[n/4+i] = cos[i];
- //       cos[n/2+i] = -cos[i];
- //       sin[n*3/4-i] = -cos[i];
- //       cos[n-i]   = cos[i];
- //       sin[n*3/4+i] = -cos[i];        
- //     }
+
  
      for(int i=0; i<n/2; i++) {
        cos[i] = Math.cos(-2*Math.PI*i/n);

@@ -32,8 +32,9 @@ package javaapplication1;
   */
  
  
+import java.util.ArrayList;
  import java.util.Arrays;
- 
+
  /*
   * Library of basic DSP algorithms.  Most of these have analogs in
   * Matlab with the same name.  
@@ -422,6 +423,16 @@ package javaapplication1;
      }
  
  
+     public static double min(ArrayList<Double> a){
+         double y = Double.MAX_VALUE;
+ 
+         for(int x = 0; x < a.size(); x++)
+             if(a.get(x) < y)
+                 y = a.get(x);
+ 
+         return y;
+     }
+     
      public static double[] min(double[] a, double b)
      {
          double[] y = new double[a.length];
@@ -970,5 +981,15 @@ package javaapplication1;
  
          System.out.println("");
      }
+
+    static double[] minus(ArrayList<Double> a, double b) {
+        double[] y = new double[a.size()];
+ 
+         for(int x = 0; x < y.length; x++)
+             y[x] = a.get(x)-b;
+ 
+         return y;
+        
+    }
  }
 
