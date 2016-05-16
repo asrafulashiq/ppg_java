@@ -312,6 +312,17 @@ import java.util.ArrayList;
  
          return y;
      }
+     
+     public static double sum(ArrayList<Double> a)
+     {        
+         double y = 0;
+ 
+         for(int x = 0; x < a.size(); x++)
+             y += a.get(x);
+ 
+         return y;
+     }
+     
  
      public static double[] cumsum(double[] a)
      {        
@@ -550,6 +561,17 @@ import java.util.ArrayList;
          return y;
      }
  
+     public static double[] irange(double start, double end, double increment){
+         double[] y = new double[(int)(1+(end-start)/increment)];
+ 
+         double num;
+         int x;
+         for(x = 0, num = start; x < y.length; x++, num += increment)
+             y[x] = num;
+ 
+         return y;
+     }
+     
      public static int[] irange(int start, int end, int increment)
      {
          int[] y = new int[1+(end-start)/increment];
@@ -794,6 +816,17 @@ import java.util.ArrayList;
  
          return y;
      }
+     
+     public static double[] abs(ArrayList<Double> a)
+     {        
+         double[] y = new double[a.size()];
+ 
+         for(int x = 0; x < y.length; x++)
+             y[x] = Math.abs(a.get(x));
+ 
+         return y;
+     }
+     
  
      public static double[] cos(double[] a)
      {
@@ -910,6 +943,7 @@ import java.util.ArrayList;
          printArray(a);
      }
  
+     @SuppressWarnings("empty-statement")
      public static void main(String[] args)
      {
          double[] y = null;
@@ -979,7 +1013,14 @@ import java.util.ArrayList;
          for(int x = 0; x < y.length; x++)
              System.out.print(y[x]+" ");
  
-         System.out.println("");
+         System.out.println(".......");
+         
+        double[] b_ = {1,2,3,1,4};
+        double[] w = DSP.irange(0.0, 4,1);
+        double[] result = JavaApplication1.absFreqz(b_, w);
+        DSP.printArray(w);
+        DSP.printArray(result);
+         
      }
 
     static double[] minus(ArrayList<Double> a, double b) {
@@ -990,6 +1031,21 @@ import java.util.ArrayList;
  
          return y;
         
+    }
+
+    static double max(ArrayList<Double> a) {
+        double y = Double.MIN_VALUE;
+ 
+         for(int x = 0; x < a.size(); x++)
+             if(a.get(x) > y)
+                 y = a.get(x);
+ 
+         return y;
+    }
+
+    static double mean(ArrayList<Double> G2) {
+        
+        return sum(G2)/G2.size();
     }
  }
 

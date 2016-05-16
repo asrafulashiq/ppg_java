@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 import java.util.Scanner;
 
 
@@ -73,6 +74,7 @@ public class JavaApplication1 {
          accDataX = myBandPass(accDataY,fSampling,2);
          accDataX = myBandPass(accDataZ,fSampling,2);
         
+        double deltaCount = 0;
         // now doing the emd portion
         int iStart = 1;
         int iStep  = 250 * multiplier ;
@@ -95,7 +97,7 @@ public class JavaApplication1 {
                     getValuesFromIndex(accDataX, currentSegment), 
                     getValuesFromIndex(accDataY, currentSegment), 
                     getValuesFromIndex(accDataZ, currentSegment), 
-                    fPrev, fSampling,peaks
+                    fPrev, deltaCount ,fSampling,peaks
             );
             
             // we construct Simf \3 Sa, 0.5, and from this set, we
@@ -183,6 +185,14 @@ public class JavaApplication1 {
                     }
                     
                     if(freqEstimates == -1){
+                        double S_org = findSignalPeaks( ppgSignal1, fPrev, 5, fSampling );
+                        double S_a0 = findSignalPeaks(ppgSignal1, fPrev, 10, fSampling);
+                        
+                        if( Math.abs(S_a0 - S_org) > 3 ){
+                            freqEstimates = S_org;
+                        }else{
+                            freqEstimates = fPrev;
+                        }
                         
                     }
                     
@@ -192,10 +202,26 @@ public class JavaApplication1 {
                 
             }
             
+            // TODO:  call_nlms2
+            fPrev = freqEstimates;
+            
             
         }
          
          
+    }
+    
+    /**
+     * 
+     * @param signal
+     * @param fPrev
+     * @param range
+     * @param fSampling
+     * @return 
+     */
+    public static double findSignalPeaks(double [] signal,  double fPrev,double range, double fSampling ){
+        
+        return 0;
     }
     
     /**
@@ -232,7 +258,64 @@ public class JavaApplication1 {
     public static double frequency_estimate(double[] sig1, double[] sig2, double[] accX,
            double[] accY, double[] accZ,double fPrev,int multiplier){
         
-        return 0;
+        double freqEst1 = -1;
+        double freqEst2 = -1;
+        
+        double[] ch1 = timeDomain(sig1,accX,accY,accZ,fPrev,multiplier);
+        double[] ch2 = timeDomain(sig2,accX,accY,accZ,fPrev,multiplier);
+        
+        if(ch1.length!=1){
+            double[] w = linspace(0, 200, 1000);
+            double[] ww = DSP.times(w, 2 * Math.PI / (125 * 60 * multiplier) );
+            
+            double[] yy1 = DSP.power(absFreqz(ch1, ww) , 2 );
+            
+            int[] loc = findPeakLocation(ch1);
+            
+            double[] w_ = getValuesFromIndex(w, loc);
+            int minloc = (int)(minValLoc( DSP.abs( DSP.minus(w, fPrev) ) ) )[1];
+            
+            freqEst1 = w[minloc];
+            
+        }
+        if(ch2.length!=1){
+            double[] w = linspace(0, 200, 1000);
+            double[] ww = DSP.times(w, 2 * Math.PI / (125 * 60 * multiplier) );
+            
+            double[] yy1 = DSP.power(absFreqz(ch2, ww) , 2 );
+            
+            int[] loc = findPeakLocation(ch2);
+            
+            double[] w_ = getValuesFromIndex(w, loc);
+            int minloc = (int)(minValLoc( DSP.abs( DSP.minus(w, fPrev) ) ) )[1];
+            
+            freqEst2 = w[minloc];
+            
+        }
+        
+        double freqEst = -1;
+        
+        double bd = 12;
+        
+        double d1 = Math.abs( freqEst1 - fPrev );
+        double d2 = Math.abs( freqEst2 - fPrev );
+        
+        if( d1 <= bd && d2 <= bd ){
+            if( d1 <= d2 ){
+                freqEst = freqEst1;
+            }else{
+                freqEst = freqEst2;
+            }
+        }
+        else if( d1 <= bd ){
+            freqEst = freqEst1;
+        }
+        else{
+            freqEst = freqEst2;
+        }
+        
+        
+        return freqEst;
     }
     
     /**
@@ -253,6 +336,64 @@ public class JavaApplication1 {
         
     }
     
+    public static double[] awgn(double[] sig, double SNR){
+        
+        int len = sig.length;
+        //double[] asig = new double[len];
+        double std = Math.sqrt(  powerOfSignal(sig) / Math.pow(10, SNR/10.0)  );
+        //System.out.println("STD:"+std);
+        double[] noise = DSP.times( randn(len,0) , std ) ;
+       // System.out.print("awgn:");
+       // System.out.println(powerOfSignal(sig));
+       // DSP.printArray( noise );
+        return DSP.plus(sig, noise);
+    }
+    
+    /**
+     * 
+     * @param len
+     * @return 
+     */
+    public static double[] randn(int len){
+        
+        Random r = new Random();
+        double[] rn = new double[len];
+        for (int i = 0; i < len; i++) {
+            rn[i] = r.nextGaussian();
+        }       
+        return rn;
+    }
+    
+    /**
+     * 
+     * @param len
+     * @param seed
+     * @return 
+     */
+    public static double[] randn(int len,int seed){
+        
+        Random r = new Random(seed);
+        double[] rn = new double[len];
+        for (int i = 0; i < len; i++) {
+            rn[i] = r.nextGaussian();
+        }       
+        return rn;
+    }
+    
+    /**
+     * 
+     * @param sig
+     * @return 
+     */
+    public static double powerOfSignal(double[] sig){
+        int len = sig.length;
+        double sum = 0;
+        for (double d : sig) {
+            sum += d*d;
+        }
+        return sum / len;
+    }
+    
     /**
      * TODO::::::::
      * @param sig1
@@ -266,9 +407,98 @@ public class JavaApplication1 {
      * @return 
      */
     public static double doEEMD( double[] sig1, double[] sig2, double[] accX,
-           double[] accY, double[] accZ, double fPrev, double fSampling, double[] peaks){
+           double[] accY, double[] accZ, double fPrev, double deltaCount ,double fSampling, double[] peaks){
+     
+        double freqEstimates = -1;
+        int NE = 8;
+        double SNR = 30;
+        int imfToChose;
         
-        return 0;
+        if(fSampling==25)
+            imfToChose = 1;
+        else if(fSampling==125)
+            imfToChose = 2;
+        else if(fSampling==250)
+            imfToChose = 2;
+        else if(fSampling==500)
+            imfToChose = 2;
+        else
+            imfToChose = 0;
+        
+        double[] imf1 = new double[sig1.length];
+        double[] imf2 = new double[sig2.length];
+        
+        for (int i = 0; i < imf1.length; i++) {
+            imf1[i] = 0;
+            imf2[i] = 0;
+        }
+        
+        
+        for (int i = 0; i < NE; i++) {
+           
+            double[] sigWithNoise = awgn(sig1, SNR);
+            imf1 = DSP.plus( imf1 ,  nwem(sigWithNoise,imfToChose) );
+            
+            sigWithNoise = awgn(sig2, SNR);
+            imf2 = DSP.plus( imf2 ,  nwem(sigWithNoise,imfToChose) );
+            
+        }
+        
+        imf1 = DSP.times( imf1 , 1.0 / imf1.length );
+        imf2 = DSP.times( imf2 , 1.0 / imf2.length );
+        
+        double[] S_imf = new double[2];
+        S_imf[0] = maxFind( imf1, fSampling );
+        S_imf[1] = maxFind( imf2, fSampling );
+        
+        double threshold = 0.5;
+        ArrayList<Double> S_a = new ArrayList<>();
+        
+        double[] pksVector = maxFindFromThreshold( accX, threshold, fSampling );
+        if( pksVector.length > 3 ){
+            pksVector = subList(pksVector, 3);
+        }
+        extendList(S_a, pksVector);
+        
+        ArrayList<Double> S_imf_a_3 = new ArrayList<>();
+        ArrayList<Double> G2 = new ArrayList<>();
+        
+        for (int i = 0; i < S_imf.length; i++) {
+            
+            if( DSP.min( DSP.abs( DSP.minus( S_a ,  S_imf[i] ) ) ) > 3 ){
+                S_imf_a_3.add( S_imf[i] );
+            }
+            
+            if( DSP.min( DSP.abs( DSP.minus( S_a ,  S_imf[i] ) ) ) > 2 ){
+                G2.add( S_imf[i] );
+            }
+            
+        }
+        
+        peaks = toDoubleArray(S_imf_a_3);
+        if( G2.size()==0 ){
+            return freqEstimates;
+        }
+        
+        double f_AC;
+        
+        if( DSP.max(G2) - DSP.min(G2) <= 2 ){
+            f_AC = DSP.mean(G2);
+        }else{
+            int loc = (int)(minValLoc( DSP.abs( DSP.minus(G2, fPrev))))[1];
+            f_AC = G2.get(loc);
+        }
+        
+        double delta_0 = 5;
+        double delta_d = 1;
+
+        double delta_AC = delta_0 + deltaCount * delta_d;
+        
+        if( Math.abs(f_AC - fPrev) < delta_AC ){
+            freqEstimates = f_AC;
+        }
+        
+        return freqEstimates;
     }
     
     
@@ -302,7 +532,7 @@ public class JavaApplication1 {
         double[] w = linspace(50,150,4000);
         double[] ww = DSP.times( w, 2 * Math.PI /(fSampling * 60.0) );
         
-        double[] fSig = Complex.abs(freqz(sig,ww));
+        double[] fSig = (absFreqz(sig,ww));
         
         int[] locs = findPeakLocation(fSig, 0.8 * DSP.max(fSig));
         
@@ -338,15 +568,15 @@ public class JavaApplication1 {
         
         ArrayList<Double> dominantPeaksOfAcc = new ArrayList<>();
         
-        double[] fAccSig = Complex.abs(freqz(accX,ww));        
+        double[] fAccSig = absFreqz(accX,ww);        
         locs = findPeakLocation(fAccSig, 0.8 * DSP.max(fAccSig));
         extendList(dominantPeaksOfAcc, getValuesFromIndex(w,locs) );
         
-        fAccSig = Complex.abs(freqz(accY,ww));        
+        fAccSig = absFreqz(accY,ww);        
         locs = findPeakLocation(fAccSig, 0.8 * DSP.max(fAccSig));
         extendList(dominantPeaksOfAcc, getValuesFromIndex(w,locs) );
         
-        fAccSig = Complex.abs(freqz(accZ,ww));        
+        fAccSig = absFreqz(accZ,ww);      
         locs = findPeakLocation(fAccSig, 0.8 * DSP.max(fAccSig));
         extendList(dominantPeaksOfAcc, getValuesFromIndex(w,locs) );
         
@@ -445,21 +675,58 @@ public class JavaApplication1 {
     
     /**
      * TODO
-     * @param signal
-     * @param freqs
+     * @param b
+     * @param w normalized radian frequencies
      * @return 
      */
-    public static Complex[] freqz( double[] signal, double[] freqs ){
+    public static double[] absFreqz( double[] b, double[] w ){
         
+        int n = b.length;
         
+       // Complex[] e = new Complex[n];
+       // Complex[] en = new Complex[n];
+        double[] h = new double[n];
         
-        return null;
+        Complex e,en;
         
+        for(int i=0;i<n;i++){
+            e = (new Complex(0, w[i])).exp();
+            en = (new Complex(0, w[i] * (n - 1) )).exp();
+            
+            h[i] = polyVal(b, e).divides(en).abs();
+        }
+         
+        return h;
+        
+    }
+    
+    /**
+     *
+     * @param b
+     * @param s
+     * @return
+     */
+    public static Complex polyVal(double[] b, Complex s ){
+        
+        int len = b.length;
+        Complex sum = new Complex(0,0);
+        
+        for(int i=0; i<len; i++){
+            
+            sum = sum.plus( s.pow(i).times( b[i] ) );
+            
+        }      
+        return sum;
     }
     
     
     public static double[] linspace(int strt,int end,int len){
         
+        return linspace((double)strt, (double)end, len);
+        
+    }
+    
+    public static double[] linspace(double strt,double end,int len){
         double step;
         if(1!=len) {
             step = 1.0 * ( end - strt  ) / (len-1);
@@ -477,7 +744,6 @@ public class JavaApplication1 {
         
         return lin;
     }
-    
     
     
     //TODO
@@ -572,6 +838,26 @@ public class JavaApplication1 {
 
     private static double[] filterArray(ArrayList<Double> fRlsSet, int min, int max) {
         return filterArray( toDoubleArray(fRlsSet) , min, max);
+    }
+
+    private static double[] nwem(double[] sigWithNoise, int imfToChose) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static double maxFind(double[] imf1, double fSampling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static double[] maxFindFromThreshold(double[] accX, double threshold, double fSampling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static double[] timeDomain(double[] sig1, double[] accX, double[] accY, double[] accZ, double fPrev, int multiplier) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static int[] findPeakLocation(double[] sig2) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
   

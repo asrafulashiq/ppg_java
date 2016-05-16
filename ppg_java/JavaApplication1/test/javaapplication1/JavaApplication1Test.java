@@ -6,7 +6,6 @@
 package javaapplication1;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -14,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
@@ -154,7 +152,7 @@ public class JavaApplication1Test {
         JavaApplication1 instance = new JavaApplication1();
         double[] expResult = new double[0];
         double[] result = instance.linspace(strt, end, len);
-        DSP.printArray(result);
+       // DSP.printArray(result);
         assertArrayEquals(result,expResult,0.001);
         // TODO review the generated test code and remove the default call to fail.
         //fail("The test case is a prototype.");
@@ -242,21 +240,7 @@ public class JavaApplication1Test {
         
     }
 
-    /**
-     * Test of freqz method, of class JavaApplication1.
-     */
-    @Test
-    public void testFreqz() {
-        System.out.println("freqz");
-        double[] signal = null;
-        double[] freqs = null;
-        Complex[] expResult = null;
-        Complex[] result = JavaApplication1.freqz(signal, freqs);
-        assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
+    
     /**
      * Test of getValuesFromIndex method, of class JavaApplication1.
      */
@@ -328,7 +312,7 @@ public class JavaApplication1Test {
         double fSampling = 0.0;
         double[] peaks = null;
         double expResult = 0.0;
-        double result = JavaApplication1.doEEMD(sig1, sig2, accX, accY, accZ, fPrev, fSampling, peaks);
+        double result = JavaApplication1.doEEMD(sig1, sig2, accX, accY, accZ, fPrev,0 ,fSampling, peaks);
         assertEquals(expResult, result, 0.0);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -367,6 +351,110 @@ public class JavaApplication1Test {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
+
+    /**
+     * Test of findSignalPeaks method, of class JavaApplication1.
+     */
+    @Test
+    public void testFindSignalPeaks() {
+        System.out.println("findSignalPeaks");
+        double[] signal = null;
+        double fPrev = 0.0;
+        double range = 0.0;
+        double fSampling = 0.0;
+        double expResult = 0.0;
+        double result = JavaApplication1.findSignalPeaks(signal, fPrev, range, fSampling);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+   
+
+    /**
+     * Test of absFreqz method, of class JavaApplication1.
+     */
+    @Test
+    public void testAbsFreqz() {
+        System.out.println("absFreqz");
+        double[] b = {1,2,3,1,4};
+        double[] w = DSP.irange(0.0, Math.PI/4, Math.PI/8);;
+        double[] expResult = null;
+        double[] result = JavaApplication1.absFreqz(b, w);
+        assertArrayEquals(expResult, result,0.01);
+        DSP.printArray(result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of polyVal method, of class JavaApplication1.
+     */
+    @Test
+    public void testPolyVal() {
+        System.out.println("polyVal");
+        double[] b = null;
+        Complex s = null;
+        Complex expResult = null;
+        Complex result = JavaApplication1.polyVal(b, s);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of awgn method, of class JavaApplication1.
+     */
+    @Test
+    public void testAwgn() {
+        System.out.println("awgn");
+        double[] sig = {1,2,3,1};
+        double SNR = 30;
+        double[] expResult = null;
+        double[] result =  JavaApplication1.awgn(sig, SNR);
+        //assertArrayEquals(expResult, result,0.01);
+        DSP.printArray(result,"awgn");
+        System.err.println("-----");
+        assertEquals(result.length,4);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of randn method, of class JavaApplication1.
+     */
+    @Test
+    public void testRandn() {
+        System.out.println("randn");
+        int len = 4;
+        int seed = 0;
+        double[] expResult = {0.5377};
+        double[] result = JavaApplication1.randn(len, seed);
+        DSP.printArray(result);
+        //assertArrayEquals(expResult, result,0.01);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of powerOfSignal method, of class JavaApplication1.
+     */
+    @Test
+    public void testPowerOfSignal() {
+        System.out.println("powerOfSignal");
+        double[] sig = {2,4,3};
+        double expResult = 9.667;
+        double result = JavaApplication1.powerOfSignal(sig);
+        assertEquals(expResult, result, 0.01);
+        
+    }
+
+    
+
+    
+
+    
+
 
    
 }

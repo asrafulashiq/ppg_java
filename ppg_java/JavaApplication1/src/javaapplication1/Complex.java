@@ -152,11 +152,44 @@ public class Complex {
         
     }
     
+    public static Complex pow(Complex c,int n){
+        
+        Complex res = new Complex(1,0);
+        
+        for(int i=0;i<n;i++){
+            res = res.times(c);
+            
+        }
+        
+        return res;
+    }
+    
+    public Complex pow(int n){
+        return Complex.pow(this, n);
+    }
+    
+    /**
+     *
+     * @param c1
+     * @param c2
+     * @return
+     */
+    public static boolean equals(Complex c1, Complex c2){
+        
+        return c1.re() == c2.re() && c1.im() == c2.im();
+        
+    }
 
+    public boolean equals(Complex c){
+        return this.re()==c.re() && this.im()==c.im();
+        
+    }
+    
     // sample client for testing
     public static void main(String[] args) {
         Complex a = new Complex(5.0, 6.0);
         Complex b = new Complex(-3.0, 4.0);
+        Complex c = new Complex(5, 6);
 
         System.out.println("a            = " + a);
         System.out.println("b            = " + b);
@@ -171,7 +204,7 @@ public class Complex {
         System.out.println("conj(a)      = " + a.conjugate());
         System.out.println("|a|          = " + a.abs());
         System.out.println("tan(a)       = " + a.tan());
-        
+        System.out.println("exp(a)       = " + a.exp());
         Complex[] array = new Complex[2];
         array[0] = a;
         array[1] = b;
@@ -179,6 +212,8 @@ public class Complex {
         
         DSP.printArray(absArray);
         
+        System.out.println(a.times(a).times(a));
+        System.out.println(a.pow(0));
         
         
     }
