@@ -72,7 +72,7 @@ public class JavaApplication1Test {
         double[] result = JavaApplication1.rlsFilter(lParameter, hSig, mainSig);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+        fail("The test case is a prototype.");
     }
 
     /**
@@ -352,22 +352,7 @@ public class JavaApplication1Test {
         fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of findSignalPeaks method, of class JavaApplication1.
-     */
-    @Test
-    public void testFindSignalPeaks() {
-        System.out.println("findSignalPeaks");
-        double[] signal = null;
-        double fPrev = 0.0;
-        double range = 0.0;
-        double fSampling = 0.0;
-        double expResult = 0.0;
-        double result = JavaApplication1.findSignalPeaks(signal, fPrev, range, fSampling);
-        assertEquals(expResult, result, 0.0);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+    
 
    
 
@@ -448,6 +433,30 @@ public class JavaApplication1Test {
         assertEquals(expResult, result, 0.01);
         
     }
+
+    
+
+    
+
+    /**
+     * Test of concateArray method, of class JavaApplication1.
+     */
+    @Test
+    public void testConcateArray() {
+        System.out.println("concateArray");
+        int[] a1 = {1,3,2};
+        int[] a2 = {5,6};
+        int[] expResult = {1,3,2,5,6};
+        int[] result = JavaApplication1.concateArray(a1, a2);
+        assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+        
+    }
+
+    
+
+    
 
     
 

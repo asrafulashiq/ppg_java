@@ -1023,7 +1023,7 @@ import java.util.ArrayList;
          
      }
 
-    static double[] minus(ArrayList<Double> a, double b) {
+    public static double[] minus(ArrayList<Double> a, double b) {
         double[] y = new double[a.size()];
  
          for(int x = 0; x < y.length; x++)
@@ -1033,7 +1033,7 @@ import java.util.ArrayList;
         
     }
 
-    static double max(ArrayList<Double> a) {
+    public static double max(ArrayList<Double> a) {
         double y = Double.MIN_VALUE;
  
          for(int x = 0; x < a.size(); x++)
@@ -1043,9 +1043,18 @@ import java.util.ArrayList;
          return y;
     }
 
-    static double mean(ArrayList<Double> G2) {
+    public static double mean(ArrayList<Double> G2) {
         
         return sum(G2)/G2.size();
     }
+    
+    public static double[] zeroVec(int n){
+        double[] d = new double[n];
+        for (int i = 0; i < n; i++) {
+            d[i] = 0;
+        }
+        return d;
+    }
+    
  }
 

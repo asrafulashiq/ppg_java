@@ -19,7 +19,6 @@ import java.util.Scanner;
  * @author mac
  */
 public class JavaApplication1 {
-    
    
 
     /**
@@ -185,8 +184,19 @@ public class JavaApplication1 {
                     }
                     
                     if(freqEstimates == -1){
-                        double S_org = findSignalPeaks( ppgSignal1, fPrev, 5, fSampling );
-                        double S_a0 = findSignalPeaks(ppgSignal1, fPrev, 10, fSampling);
+                        double S_org = findSignalPeaks( 
+                                getValuesFromIndex(ppgSignal1, currentSegment),
+                                getValuesFromIndex(ppgSignal2, currentSegment),
+                                fPrev,10,fSampling
+                        );
+                        
+                        double S_a0 = findSignalPeaks( 
+                                getValuesFromIndex(accDataX, currentSegment),
+                                getValuesFromIndex(accDataY, currentSegment),
+                                getValuesFromIndex(accDataZ, currentSegment),
+                                fPrev,5.0,fSampling
+                        );
+                        
                         
                         if( Math.abs(S_a0 - S_org) > 3 ){
                             freqEstimates = S_org;
@@ -213,15 +223,89 @@ public class JavaApplication1 {
     
     /**
      * 
+     * @param signal1
      * @param signal
      * @param fPrev
      * @param range
      * @param fSampling
      * @return 
      */
-    public static double findSignalPeaks(double [] signal,  double fPrev,double range, double fSampling ){
+    public static double findSignalPeaks(double [] signal1,double [] signal2,  double fPrev,double range, double fSampling ){
         
-        return 0;
+        double[] w = linspace(fPrev-range, fPrev+range, 100);
+        double[] ww = DSP.times(w, 2 * Math.PI / (fSampling * 60 ) );
+        
+        double[] fy1 = DSP.power(absFreqz(signal1, ww) , 2 );
+        double[] fy2 = DSP.power(absFreqz(signal2, ww) , 2 );
+        int[] loc1 = findPeakLocation(fy1);
+        int[] loc2 = findPeakLocation(fy2);
+        
+        int[] pksLoc = concateArray(loc1, loc2);
+        
+        double[] cand = getValuesFromIndex(w, pksLoc);
+        
+        if( cand.length!=0 ){
+            int pos = (int)(minValLoc( DSP.abs( DSP.minus(cand, fPrev) ) ) )[1];
+            return cand[pos];
+        }
+        else 
+            return fPrev;
+       
+    }
+    
+    
+    public static double findSignalPeaks(double [] signal1,double [] signal2,double[] signal3, double fPrev,double range, double fSampling ){
+        
+        double[] w = linspace(fPrev-range, fPrev+range, 100);
+        double[] ww = DSP.times(w, 2 * Math.PI / (fSampling * 60 ) );
+        
+        double[] fy1 = DSP.power(absFreqz(signal1, ww) , 2 );
+        double[] fy2 = DSP.power(absFreqz(signal2, ww) , 2 );
+        double[] fy3 = DSP.power(absFreqz(signal3, ww) , 2 );
+        int[] loc1 = findPeakLocation(fy1);
+        int[] loc2 = findPeakLocation(fy2);
+        int[] loc3 = findPeakLocation(fy3);
+        int[] pksLoc = concateArray( concateArray(loc1, loc2) , loc3);
+        
+        double[] cand = getValuesFromIndex(w, pksLoc);
+        
+        if( cand.length!=0 ){
+            int pos = (int)(minValLoc( DSP.abs( DSP.minus(cand, fPrev) ) ) )[1];
+            return cand[pos];
+        }
+        else 
+            return fPrev;
+       
+    }
+    
+    /**
+     * 
+     * @param signal1
+     * @param signal2
+     * @param freq
+     * @param range
+     * @param fSampling
+     * @return 
+     */
+    public static double callNLMS(double[] signal1, double[] signal2,double freq, double range,double fSampling){
+        
+        double[] w = linspace(freq-range, freq+range, 4000);
+        double[] ww = DSP.times(w, 2 * Math.PI / (fSampling * 60));
+        double[] fy1 = DSP.power(absFreqz(signal1, ww) , 2 );
+        double[] fy2 = DSP.power(absFreqz(signal2, ww) , 2 );
+        int[] loc1 = findPeakLocation(fy1);
+        int[] loc2 = findPeakLocation(fy2);
+        
+        int[] pksLoc = concateArray(loc1, loc2);
+        
+        double[] cand = getValuesFromIndex(w, pksLoc);
+        if( cand.length!=0 ){
+            int pos = (int)(minValLoc( DSP.abs( DSP.minus(cand, freq) ) ) )[1];
+            return cand[pos];
+        }
+        else 
+            return freq;
+        
     }
     
     /**
@@ -635,6 +719,14 @@ public class JavaApplication1 {
         }
     }
     
+    public static int[] concateArray(int[] a1,int[] a2){
+        int[] a = new int[a1.length+a2.length];
+        System.arraycopy(a1, 0, a, 0, a1.length);
+        System.arraycopy(a2, 0, a, a1.length, a2.length);
+        return a;
+        
+    }
+    
     /**
      * 
      * @param array
@@ -798,14 +890,19 @@ public class JavaApplication1 {
     /**
      * 
      * @param lParameter parameter of RLS filter
+     * @param dSig
      * @param hSig helper signal
      * @param mainSig main signal
      * @return filtered signal
      */
     
-    public static double[] rlsFilter(int lParameter,double[] hSig,double[] mainSig){
+    public static double[] rlsFilter(int lParameter,double[] dSig,double[] mainSig){
         
-        return null;
+        int iteration = 10000;
+        RLSAlgo rls = new RLSAlgo(lParameter);
+        rls.setXD(dSig, mainSig);
+        rls.compute();
+        return rls.filter();
     }
     
     
@@ -832,7 +929,7 @@ public class JavaApplication1 {
         
     }
 
-    private static double[] maxFindFromThreshold(double[] yCropped, double d, int fSampling) {
+    private static double[] maxFindFromThreshold(double[] y, double d, int fSampling) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
