@@ -8,11 +8,9 @@ package javaapplication1;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
-
+import java.util.Arrays;
 
 /**
  *
@@ -62,8 +60,6 @@ public class JavaApplication1 {
         
         double fPrev = initialize( subList(rN,1000), subList(accDataX,1000),subList(accDataY,1000),
                 subList(accDataZ, 1000),fSampling);
-        
-        
         
         // bandpassing all the data of signal
          ppgSignal1 = myBandPass(ppgSignal1,fSampling,2);
@@ -354,12 +350,12 @@ public class JavaApplication1 {
             
             double[] yy1 = DSP.power(absFreqz(ch1, ww) , 2 );
             
-            int[] loc = findPeakLocation(ch1);
+            int[] loc = findPeakLocation(yy1);
             
             double[] w_ = getValuesFromIndex(w, loc);
             int minloc = (int)(minValLoc( DSP.abs( DSP.minus(w, fPrev) ) ) )[1];
             
-            freqEst1 = w[minloc];
+            freqEst1 = w_[minloc];
             
         }
         if(ch2.length!=1){
@@ -368,12 +364,12 @@ public class JavaApplication1 {
             
             double[] yy1 = DSP.power(absFreqz(ch2, ww) , 2 );
             
-            int[] loc = findPeakLocation(ch2);
+            int[] loc = findPeakLocation(yy1);
             
             double[] w_ = getValuesFromIndex(w, loc);
             int minloc = (int)(minValLoc( DSP.abs( DSP.minus(w, fPrev) ) ) )[1];
             
-            freqEst2 = w[minloc];
+            freqEst2 = w_[minloc];
             
         }
         
@@ -503,9 +499,9 @@ public class JavaApplication1 {
         else if(fSampling==125)
             imfToChose = 2;
         else if(fSampling==250)
-            imfToChose = 2;
+            imfToChose = 3;
         else if(fSampling==500)
-            imfToChose = 2;
+            imfToChose = 4;
         else
             imfToChose = 0;
         
@@ -708,6 +704,11 @@ public class JavaApplication1 {
         return index;
     }
     
+    public static double maxVal(double[] d){
+        int n = maxIndex(d);
+        return d[n];
+    }
+    
     /**
      * 
      * @param list
@@ -750,45 +751,94 @@ public class JavaApplication1 {
      */
     public static int[] findPeakLocation(double[] sig, double threshold){
         
-        ArrayList<Integer> locs = new ArrayList<>();
-        for(int i=0; i<sig.length; i++){
-            if( sig[i] >= threshold ){
-                locs.add(i);
+        int[] locs = findPeakLocation(sig); // get all local maximum
+        
+        ArrayList<Integer> locList = new ArrayList<>();
+        
+        double thrVal = threshold * maxVal(sig);
+        
+        for (int loc : locs) {
+            if( sig[loc] >= thrVal ){
+                locList.add(loc);
             }
         }
         
-        int[] loc = new int[locs.size()];
-        for(int i=0;i<locs.size();i++){
-            loc[i] = locs.get(i);
+        return toIntArray(locList);
+        
+    }
+    
+    /**
+     * 
+     * @param sig
+     * @param threshold
+     * @param minpeakDistance
+     * @return 
+     */
+    public static int[] findPeakLocation(double[] sig, double threshold,double minpeakDistance){
+        
+        int[] locs = findPeakLocation(sig,threshold); // get all local maximum
+        
+        int[] sortedLocs = sortWithIndex( getValuesFromIndex(sig, locs) , false);
+        ArrayList<Integer> locArr = new ArrayList<>();
+        
+        for (int i = 0; i < sortedLocs.length; i++) {
+            if(sortedLocs[i]==-1)continue;
+            locArr.add(sortedLocs[i]);
+            for (int j = i+1; j < sortedLocs.length; j++) {
+                if(sortedLocs[j]==-1)continue;
+                if( (sig[sortedLocs[i]] - sig[sortedLocs[j]]) < minpeakDistance ){
+                    sortedLocs[j] = -1;
+                }   
+            }   
         }
         
-        return loc;
+        
+        return toIntArray(locArr);
+    }
+    
+    public static int[] sortWithIndex(double[] array,boolean ascend){
+        
+        return ArrayIndexComparator.sort(array, ascend);
     }
     
     /**
      * TODO
+     * @param sig
      * @param b
      * @param w normalized radian frequencies
      * @return 
      */
-    public static double[] absFreqz( double[] b, double[] w ){
+    public static double[] absFreqz( double[] sig, double [] w){
         
-        int n = b.length;
+        int N = w.length;
+        return absFreqz(sig, N);
         
-       // Complex[] e = new Complex[n];
-       // Complex[] en = new Complex[n];
-        double[] h = new double[n];
+    }
+    
+    public static double[] absFreqz( double[] nsig, int N){
         
-        Complex e,en;
+        // if signal length less than N, then zero pad
+        double[] sig;
+        if( nsig.length < N ){           
+            sig = zeroPad(nsig,N-nsig.length);         
+        }else{
+            sig = nsig;
+        }
         
-        for(int i=0;i<n;i++){
-            e = (new Complex(0, w[i])).exp();
-            en = (new Complex(0, w[i] * (n - 1) )).exp();
-            
-            h[i] = polyVal(b, e).divides(en).abs();
+        FFT fft = new FFT(N);
+        double[] re = new double[N];
+        System.arraycopy(sig, 0, re, 0 , N); // re vector initialized with sig       
+        double[] imag = DSP.zeroVec(N); // imag vector initialized by zero
+        
+        fft.fft(re, imag);
+        
+        double[] resp = new double[N]; // frequency response
+        
+        for (int i = 0; i < N; i++) {
+            resp[i] = re[i]*re[i] + imag[i]*imag[i];
         }
          
-        return h;
+        return resp;
         
     }
     
@@ -886,6 +936,19 @@ public class JavaApplication1 {
         return d;
     }
     
+    
+    public static int[] toIntArray(ArrayList<Integer> l){
+        int [] d = new int[l.size()];
+        
+        for(int i=0; i < l.size(); i++){
+            d[i] = l.get(i);
+        }
+        
+        return d;
+    }
+    
+    
+    
     // TODO:
     /**
      * 
@@ -899,7 +962,7 @@ public class JavaApplication1 {
     public static double[] rlsFilter(int lParameter,double[] dSig,double[] mainSig){
         
         int iteration = 10000;
-        RLSAlgo rls = new RLSAlgo(lParameter);
+        RLSAlgo rls = new RLSAlgo(lParameter,iteration);
         rls.setXD(dSig, mainSig);
         rls.compute();
         return rls.filter();
@@ -929,37 +992,98 @@ public class JavaApplication1 {
         
     }
 
-    private static double[] maxFindFromThreshold(double[] y, double d, int fSampling) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
     private static double[] filterArray(ArrayList<Double> fRlsSet, int min, int max) {
         return filterArray( toDoubleArray(fRlsSet) , min, max);
     }
 
     private static double[] nwem(double[] sigWithNoise, int imfToChose) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        double[] imf = Emd.getImf(sigWithNoise, imfToChose);      
+        return imf;
+      
     }
 
-    private static double maxFind(double[] imf1, double fSampling) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public static double maxFind(double[] imf1, double fSampling) {
+        
+        int N = 1024;
+        double[] Py = absFreqz(imf1, N); // power spectrum square of imf1
+        int loc = maxIndex(Py);
+        
+        return 200.0/(1000-1) * (loc - 1);
+        
+        
     }
 
     private static double[] maxFindFromThreshold(double[] accX, double threshold, double fSampling) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        
     }
 
     private static double[] timeDomain(double[] sig1, double[] accX, double[] accY, double[] accZ, double fPrev, int multiplier) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static int[] findPeakLocation(double[] sig2) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    /**
+     * find local maximum of sig
+     * @param sig
+     * @return 
+     */
+    public static int[] findPeakLocation(double[] sig) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       ArrayList<Integer> locs = new ArrayList<>();
+       int[] locs_;
+       int len = sig.length;
+       if(len==0)return null;
+       else if(len==1 ){
+           locs_ = DSP.zeroVecInt(1);
+           return locs_;
+       }; 
+       
+       for (int i = 0; i < len; i++) {
+            
+            if( i == 0  ){ // first location
+                if( sig[i] > sig[i+1] ){
+                    locs.add(i);
+                }
+            }
+            else if(i == len-1) // last location
+            {
+                if( sig[i]>sig[i-1] ){
+                    locs.add(i);
+                }
+            }
+            else{
+                
+                if( sig[i] > sig[i-1] && sig[i] > sig[i+1] ){
+                    locs.add(i);
+                }
+                
+            }
+            
+       }
+       
+       return toIntArray(locs);
     }
     
-  
-    
-    
-    
-    
+    private static double[] maxFindFromThreshold(double[] y, double d, int fSampling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public static double[] zeroPad(double[] nsig, int i) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double[] new_sig = new double[nsig.length+i];
+        for (int j = 0; j < new_sig.length ; j++) {
+            if(j<nsig.length){
+                new_sig[j] = nsig[j];
+            }
+            else{
+                new_sig[j] = 0;
+            }
+        }
+        return new_sig;
+    }
+
 }

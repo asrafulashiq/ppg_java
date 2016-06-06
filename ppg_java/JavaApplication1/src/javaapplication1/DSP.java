@@ -1056,5 +1056,22 @@ import java.util.ArrayList;
         return d;
     }
     
+    public static int[] zeroVecInt(int n){
+        int[] d = new int[n];
+        for (int i = 0; i < n; i++) {
+            d[i] = 0;
+        }
+        return d;
+    }
+
+    static void printArray(int[] indexes) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double[] d = todouble(indexes);
+        printArray(d);
+        
+    
+    }
+    
+    
  }
 

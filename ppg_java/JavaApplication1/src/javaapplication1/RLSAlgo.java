@@ -37,11 +37,14 @@ public class RLSAlgo {
     }
 
     public RLSAlgo(int norder){
-        this(norder,1.0, 10000 ,0.001);
+        this(norder,1.0, -1 ,0.001);
     }
     
     public void setX(double[] x){
         this.x = x;
+        if(this.iteration==-1){
+            this.iteration = this.x.length;
+        }
     }
 
     public void setD(double[] d){
@@ -70,6 +73,8 @@ public class RLSAlgo {
         
         
         for (int i = 1; i <= iteration; i++) {
+            
+            //System.out.println(i);
             
             xn = getXN(x, i, nOrder);
             
@@ -136,10 +141,10 @@ public class RLSAlgo {
     
     public static void main(String[] args){
         
-        double[] x = DSP.range(1, 10);
-        double[] d = DSP.range(3, 12);
+        double[] x = DSP.range(1, 1000);
+        double[] d = DSP.range(6, 1005);
         
-        RLSAlgo rls = new RLSAlgo(5, 6);
+        RLSAlgo rls = new RLSAlgo(30,500);
         rls.setXD(x, d);
         rls.compute();
         DSP.printArray(rls.getWeights(), "Weights ");
