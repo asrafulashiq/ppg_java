@@ -581,6 +581,8 @@ import java.util.ArrayList;
  
          return y;
      }
+     
+     
  
      public static int[] irange(int start, int end)
      {
@@ -1070,6 +1072,12 @@ import java.util.ArrayList;
         printArray(d);
         
     
+    }
+
+    static double[] minus(int[] locs, int i) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double[] locsDouble = todouble(locs);
+        return minus(locsDouble, i);
     }
     
     

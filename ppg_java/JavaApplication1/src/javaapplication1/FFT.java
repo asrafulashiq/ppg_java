@@ -5,6 +5,9 @@
  */
 package javaapplication1;
 
+import java.io.FileNotFoundException;
+import static javaapplication1.JavaApplication1.getArray;
+
 /**
  *
  * @author mac
@@ -155,8 +158,31 @@ package javaapplication1;
  
  
    // Test the FFT to make sure it's working
-   public static void main(String[] args) {
-     int N = 8;
+   public static void main(String[] args) throws FileNotFoundException {
+       
+       int N = 4096;
+       double[] sig = getArray("DATA01_1.dat");
+       
+        FFT fft = new FFT(N);
+        double[] re = new double[N];
+        System.arraycopy(sig, 0, re, 0 , N); // re vector initialized with sig       
+        double[] imag = DSP.zeroVec(N); // imag vector initialized by zero
+        
+        fft.fft(re, imag);
+        
+        double[] resp = new double[N]; // frequency response
+        
+        for (int i = 0; i < N; i++) {
+            resp[i] = (re[i]*re[i] + imag[i]*imag[i])/4096;
+            System.out.println(resp[i]);
+            
+        }
+        
+        
+       
+        
+     
+    /* int N = 8;
  
      FFT fft = new FFT(N);
  
@@ -197,6 +223,8 @@ package javaapplication1;
        fft.fft(re,im);
      time = System.currentTimeMillis() - time;
      System.out.println("Averaged " + (time/iter) + "ms per iteration");
+
+     */
    }
  
    protected static void beforeAfter(FFT fft, double[] re, double[] im) {

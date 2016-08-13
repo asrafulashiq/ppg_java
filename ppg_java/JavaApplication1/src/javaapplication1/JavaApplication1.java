@@ -594,6 +594,44 @@ public class JavaApplication1 {
         return arr;
     }
     
+    public static double[] subList(double[] doubleArray, int strIndex,int endIndex){
+        int len = endIndex - strIndex + 1;
+        double[] arr = new double[len];
+        
+        for (int i = 0; i < len; i++) {
+            arr[i] = doubleArray[strIndex+i];
+        }
+        
+        return arr;
+    }
+    
+    
+    public static double w(double loc, int N, float fSampling){
+        return loc / N * (60 * fSampling) + 50;
+    }
+    
+    public static double[] w(double[] locs, int N, float fSampling){
+        
+        double[] arr = new double[locs.length];
+        for (int i = 0; i < locs.length; i++) {
+            arr[i] = w(locs[i],N,fSampling);
+            
+        }
+        return arr;
+        
+    }
+    public static double[] w(int[] locs, int N, float fSampling){
+        
+        double[] arr = new double[locs.length];
+        for (int i = 0; i < locs.length; i++) {
+            arr[i] = w(locs[i],N,fSampling);
+            
+        }
+        return arr;
+        
+    }
+    
+    
     
     /**
      * TODO
@@ -609,23 +647,30 @@ public class JavaApplication1 {
             double[] accZ, float fSampling){
         
         double fPrev = -1;
-        double[] w = linspace(50,150,4000);
-        double[] ww = DSP.times( w, 2 * Math.PI /(fSampling * 60.0) );
+        //double[] w = linspace(50,150,4096);
         
-        double[] fSig = (absFreqz(sig,ww));
+        //double[] ww = DSP.times( w, 2 * Math.PI /(fSampling * 60.0) );
+       
+        int N = (int)Math.pow(2, 17);
+        double[] fSig = absFreqz(sig,N);
+      
+        // get indices
+        int strtIndex = (int)( 50 / (60*fSampling)* N );
+        int endIndex = (int)( 150 / (60*fSampling)* N );
+        
+        fSig = subList(fSig, strtIndex, endIndex);
         
         int[] locs = findPeakLocation(fSig, 0.8 * DSP.max(fSig));
         
-        
         if(locs.length == 1){
-            fPrev = w[locs[0]];
+            fPrev = w(locs[0],N,fSampling);
             return fPrev;
         }
         
         //  if more than one frequencies have value above 80% 
         //  then we look for their second harmonics
         
-        double[] peakFreqs = getValuesFromIndex(w,locs);
+        double[] peakFreqs = w(locs,N,fSampling);
         double secondHarmonicMax = -1;
         
         for(int i = 0; i < locs.length; i++ ){
@@ -648,18 +693,17 @@ public class JavaApplication1 {
         
         ArrayList<Double> dominantPeaksOfAcc = new ArrayList<>();
         
-        double[] fAccSig = absFreqz(accX,ww);        
+        double[] fAccSig = absFreqz(accX);        
         locs = findPeakLocation(fAccSig, 0.8 * DSP.max(fAccSig));
-        extendList(dominantPeaksOfAcc, getValuesFromIndex(w,locs) );
+        extendList(dominantPeaksOfAcc, w(locs,N,fSampling) );
         
-        fAccSig = absFreqz(accY,ww);        
+        fAccSig = absFreqz(accY);        
         locs = findPeakLocation(fAccSig, 0.8 * DSP.max(fAccSig));
-        extendList(dominantPeaksOfAcc, getValuesFromIndex(w,locs) );
+        extendList(dominantPeaksOfAcc, w(locs,N,fSampling) );
         
-        fAccSig = absFreqz(accZ,ww);      
+        fAccSig = absFreqz(accZ);      
         locs = findPeakLocation(fAccSig, 0.8 * DSP.max(fAccSig));
-        extendList(dominantPeaksOfAcc, getValuesFromIndex(w,locs) );
-        
+        extendList(dominantPeaksOfAcc, w(locs,N,fSampling) );
         
         double accCloseFreqMax = -1;
         
@@ -681,7 +725,7 @@ public class JavaApplication1 {
         
         // else return strongest peak location
         int index = maxIndex(fSig);
-        fPrev = getValuesFromIndex(w,locs)[0];
+        fPrev = w(locs,N,fSampling)[0];
         return fPrev;
     }
     
@@ -755,7 +799,7 @@ public class JavaApplication1 {
         
         ArrayList<Integer> locList = new ArrayList<>();
         
-        double thrVal = threshold * maxVal(sig);
+        double thrVal = threshold ;//* maxVal(sig);
         
         for (int loc : locs) {
             if( sig[loc] >= thrVal ){
@@ -771,29 +815,43 @@ public class JavaApplication1 {
      * 
      * @param sig
      * @param threshold
+     * @param minPeakDistance
      * @param minpeakDistance
      * @return 
      */
-    public static int[] findPeakLocation(double[] sig, double threshold,double minpeakDistance){
+    public static int[] findPeakLocation( double[] sig,double threshold,double minPeakDistance ){
         
-        int[] locs = findPeakLocation(sig,threshold); // get all local maximum
-        
-        int[] sortedLocs = sortWithIndex( getValuesFromIndex(sig, locs) , false);
-        ArrayList<Integer> locArr = new ArrayList<>();
-        
-        for (int i = 0; i < sortedLocs.length; i++) {
-            if(sortedLocs[i]==-1)continue;
-            locArr.add(sortedLocs[i]);
-            for (int j = i+1; j < sortedLocs.length; j++) {
-                if(sortedLocs[j]==-1)continue;
-                if( (sig[sortedLocs[i]] - sig[sortedLocs[j]]) < minpeakDistance ){
-                    sortedLocs[j] = -1;
-                }   
-            }   
+        int[] locs = findPeakLocation(sig, threshold);
+        double[] arr = getValuesFromIndex(sig, locs);
+        sort(arr,false);
+        ArrayList<Double> list = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            if(arr[i]==-1){
+                continue;
+            }
+            list.add(arr[i]);
+            for (int j = i+1; j < arr.length; j++) {
+                if(arr[j]==-1)continue;
+                if( ( arr[i] - arr[j] ) <= minPeakDistance ){
+                    arr[j] = -1;
+                }
+            }
         }
         
+        // get indices
+        int[] indices = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            
+            for (int j = 0; j < sig.length; j++) {
+                if( sig[j] == arr[i] ){
+                    indices[i] = j;
+                    break;
+                }
+            }
+            
+        }
         
-        return toIntArray(locArr);
+        return indices;
     }
     
     public static int[] sortWithIndex(double[] array,boolean ascend){
@@ -801,20 +859,46 @@ public class JavaApplication1 {
         return ArrayIndexComparator.sort(array, ascend);
     }
     
-    /**
-     * TODO
-     * @param sig
-     * @param b
-     * @param w normalized radian frequencies
-     * @return 
-     */
-    public static double[] absFreqz( double[] sig, double [] w){
+    public static void sort(double[] arr,boolean ascend ){
         
-        int N = w.length;
-        return absFreqz(sig, N);
+        Arrays.sort(arr);
+        if(ascend == false){
+            reverse(arr);
+        }
         
     }
     
+     public static void reverse(double[] arr){
+        
+         int len = arr.length;
+         int hlen = (int)arr.length/2;
+         for (int i = 0; i < hlen; i++) {
+             double tmp = arr[i];
+             arr[i] = arr[len - i - 1];
+             arr[len - i - 1] = tmp;
+             
+         }
+    }
+    
+   // TODO:    
+    public static double[] absFreqz(double[] nsig,double[] w ){
+        
+        int N = (int) Math.pow(2, 17);
+        double[] fr = absFreqz(nsig, N);
+        
+        
+        return null;
+    }
+     
+    
+    // TODO:......
+    
+    public static double[] absFreqz( double[] nsig){
+    
+        
+        return null;
+    }
+     
     public static double[] absFreqz( double[] nsig, int N){
         
         // if signal length less than N, then zero pad
@@ -835,9 +919,9 @@ public class JavaApplication1 {
         double[] resp = new double[N]; // frequency response
         
         for (int i = 0; i < N; i++) {
-            resp[i] = re[i]*re[i] + imag[i]*imag[i];
+            resp[i] = Math.sqrt( re[i]*re[i] + imag[i]*imag[i]);
         }
-         
+        
         return resp;
         
     }
@@ -1011,19 +1095,84 @@ public class JavaApplication1 {
         double[] Py = absFreqz(imf1, N); // power spectrum square of imf1
         int loc = maxIndex(Py);
         
-        return 200.0/(1000-1) * (loc - 1);
+        return 200.0/(1024-1) * (loc - 1);
         
         
     }
 
     private static double[] maxFindFromThreshold(double[] accX, double threshold, double fSampling) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int N = 4096;
+        double[] Py = absFreqz(accX, N); // power spectrum square of imf1
+        int[] locs = findPeakLocation(Py, threshold, 3);
         
+        double tmp = 300.0 / (4096 - 1);
+        
+        return DSP.times( DSP.minus(locs, 1)  , tmp);
         
     }
 
     private static double[] timeDomain(double[] sig1, double[] accX, double[] accY, double[] accZ, double fPrev, int multiplier) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+       double[] en = DSP.plus( DSP.plus( DSP.power(accX, 2)  , DSP.power(accY, 2)) , DSP.power(accZ, 2));
+       
+       double tt = 0.1 * maxVal(en);
+       
+       //ArrayList<Integer> bin = new ArrayList<>();
+       
+       int[] bin = new int[en.length];
+       
+        for (int i = 0; i < en.length; i++) {
+            if( en[i] > tt ){
+                bin[i] = 1;
+            }
+            else{
+                bin[i] = 0;
+            }
+        }
+        
+        int cl=0;
+        int mxl=0;
+        int mxst=0;
+        int st=1;
+        
+        for (int i = 0; i < 200.0*5*multiplier; i++) {
+            if(bin[i]==0){
+                cl++;
+                if(cl>=mxl){
+                    mxl = cl;
+                    mxst = st;
+                }else{
+                    cl = 0;
+                    st = i + 1;
+                }
+            }
+        }
+        
+        double [] y;
+        
+        if(mxst+mxl-1<=200*5*multiplier){
+            int[] I = DSP.irange(mxst, mxst+mxl-1);
+            
+            if(I.length >= 80*5*multiplier){
+                int kkk = I[I.length-1];
+                I = DSP.irange( (kkk-400*multiplier+1),kkk );
+            }
+            
+            if( ( I.length>27*5*multiplier && I[I.length-1]>150*5*multiplier ) || I.length>60*5*multiplier ){
+                y = new double[I.length];
+                for (int i = 0; i < I.length; i++) {
+                    y[i] = sig1[i];
+                }
+            }else{
+                y = null;
+            }
+        }else{
+            y = null;
+        }
+    
+       return y;
     }
 
     /**

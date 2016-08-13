@@ -5,6 +5,7 @@
  */
 package javaapplication1;
 
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -497,6 +498,193 @@ public class DSPTest {
      */
     @Test
     public void testMain() {
+    }
+
+    /**
+     * Test of sum method, of class DSP.
+     */
+    @Test
+    public void testSum_doubleArr() {
+        System.out.println("sum");
+        double[] a = null;
+        double expResult = 0.0;
+        double result = DSP.sum(a);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of sum method, of class DSP.
+     */
+    @Test
+    public void testSum_ArrayList() {
+        System.out.println("sum");
+        ArrayList<Double> a = null;
+        double expResult = 0.0;
+        double result = DSP.sum(a);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of min method, of class DSP.
+     */
+    @Test
+    public void testMin_ArrayList() {
+        System.out.println("min");
+        ArrayList<Double> a = null;
+        double expResult = 0.0;
+        double result = DSP.min(a);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of irange method, of class DSP.
+     */
+    @Test
+    public void testIrange_3args_1() {
+        System.out.println("irange");
+        double start = 0.0;
+        double end = 0.0;
+        double increment = 0.0;
+        double[] expResult = null;
+        double[] result = DSP.irange(start, end, increment);
+        //assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of irange method, of class DSP.
+     */
+    @Test
+    public void testIrange_3args_2() {
+        System.out.println("irange");
+        int start = 0;
+        int end = 0;
+        int increment = 0;
+        int[] expResult = null;
+        int[] result = DSP.irange(start, end, increment);
+        assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    
+
+    /**
+     * Test of abs method, of class DSP.
+     */
+    @Test
+    public void testAbs_doubleArr() {
+        System.out.println("abs");
+        double[] a = null;
+        double[] expResult = null;
+        double[] result = DSP.abs(a);
+       // assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of abs method, of class DSP.
+     */
+    @Test
+    public void testAbs_ArrayList() {
+        System.out.println("abs");
+        ArrayList<Double> a = null;
+        double[] expResult = null;
+        double[] result = DSP.abs(a);
+      //  assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of minus method, of class DSP.
+     */
+    @Test
+    public void testMinus_ArrayList_double() {
+        System.out.println("minus");
+        ArrayList<Double> a = null;
+        double b = 0.0;
+        double[] expResult = null;
+        double[] result = DSP.minus(a, b);
+       // assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of max method, of class DSP.
+     */
+    @Test
+    public void testMax_ArrayList() {
+        System.out.println("max");
+        ArrayList<Double> a = null;
+        double expResult = 0.0;
+        double result = DSP.max(a);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of mean method, of class DSP.
+     */
+    @Test
+    public void testMean_ArrayList() {
+        System.out.println("mean");
+        ArrayList<Double> G2 = null;
+        double expResult = 0.0;
+        double result = DSP.mean(G2);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of zeroVec method, of class DSP.
+     */
+    @Test
+    public void testZeroVec() {
+        System.out.println("zeroVec");
+        int n = 0;
+        double[] expResult = null;
+        double[] result = DSP.zeroVec(n);
+       // assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of zeroVecInt method, of class DSP.
+     */
+    @Test
+    public void testZeroVecInt() {
+        System.out.println("zeroVecInt");
+        int n = 0;
+        int[] expResult = null;
+        int[] result = DSP.zeroVecInt(n);
+        assertArrayEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of printArray method, of class DSP.
+     */
+    @Test
+    public void testPrintArray_intArr() {
+        System.out.println("printArray");
+        int[] indexes = null;
+        DSP.printArray(indexes);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
     
 }

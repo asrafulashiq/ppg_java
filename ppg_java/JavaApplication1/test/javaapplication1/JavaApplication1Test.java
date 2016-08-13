@@ -6,6 +6,7 @@
 package javaapplication1;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,6 +36,7 @@ public class JavaApplication1Test {
     
     @Before
     public void setUp() {
+        //JavaApplication1 instance = new JavaApplication1();
     }
     
     @After
@@ -232,14 +234,76 @@ public class JavaApplication1Test {
     @Test
     public void testFindPeakLocation() {
         System.out.println("findPeakLocation");
-        double[] sig = {9.5,3.0,10,8,8.8};
-        double threshold = 8.0;
-        int[] expResult = {0,2,3,4};
-        int[] result = JavaApplication1.findPeakLocation(sig, threshold);
+        double[] sig = {1,4,2,6,4,8,7,10,4,-3,4,7,2};
+        //double threshold = 8.0;
+        int[] expResult = {1,3,5,7,11};
+        int[] result = JavaApplication1.findPeakLocation(sig);
         assertArrayEquals(expResult, result);
         
     }
 
+    /**
+     * Test of findPeakLocation method, of class JavaApplication1.
+     */
+    @Test
+    public void testFindPeakLocation2() {
+        System.out.println("findPeakLocation");
+        double[] sig = {1,4,2,6,4,8,7,10,4,-3,4,7,2};
+        double threshold = 0.5;
+        int[] expResult = {3,5,7,11};
+        int[] result = JavaApplication1.findPeakLocation(sig,threshold);
+        assertArrayEquals(expResult, result);
+        
+    }
+    
+    /**
+     * Test of findPeakLocation method, of class JavaApplication1.
+     */
+    @Test
+    public void testFindPeakLocation3() {
+        System.out.println("findPeakLocation");
+        double[] sig = {1,4,2,6,4,8,7,10,4,-3,4,7,2};
+        double threshold = 0.5;
+        int[] expResult = {3,5,7,11};
+        int[] result = JavaApplication1.findPeakLocation(sig,threshold);
+        assertArrayEquals(expResult, result);
+        
+        DSP.printArray(result);
+    }
+    
+    /**
+     * Test of findPeakLocation method, of class JavaApplication1.
+     */
+    @Test
+    public void testFindPeakLocation3_1() {
+        System.out.println("findPeakLocation");
+        double[] t = DSP.irange(0.0,10.0,0.1);
+        double[] sig =  DSP.plus( DSP.sin(t) , DSP.times( DSP.sin( DSP.times(t, 5) ),0.5) );
+        double threshold = 0.5;
+        int[] expResult = { 16,    79,     4,    67,    90,   28 };
+        int[] result = JavaApplication1.findPeakLocation(sig,threshold);
+        DSP.printArray(result);
+        
+        for (int i = 0; i < result.length; i++) {
+            System.out.println( sig[result[i]] );
+        }
+        
+        assertArrayEquals(expResult, result);
+        
+        
+    }
+    
+    @Test
+    public void testSortWithIndex(){
+        
+        System.err.println("sortWithIndex");
+        
+        double[] a = {3,2,100,-4,0,25,4,19};
+        int[] expResult = {2,5,7,6,0,1,4,3};
+         JavaApplication1 instance = new JavaApplication1();
+         int[] result = instance.sortWithIndex(a, false);
+         assertArrayEquals(expResult, result);
+    }
     
     /**
      * Test of getValuesFromIndex method, of class JavaApplication1.
@@ -256,6 +320,29 @@ public class JavaApplication1Test {
         
     }
 
+    
+    @Test
+    public void testSort(){
+        System.out.println("Sort");
+        double[] arr = {3.3,2.2,1.1,0,10};
+        JavaApplication1 instance = new JavaApplication1(); 
+        double[] expResult = {10,3.3,2.2,1.1,0};
+        instance.sort(arr, false);
+        DSP.printArray(arr);
+        assertArrayEquals(expResult, arr,0.01);
+        
+    }
+    
+    @Test
+    public void testReverse(){
+        System.err.println("Reverse");
+        double[] arr={3.3, 4, 4.1, 2.1, 1};
+        double[] expResult = {1, 2.1, 4.1, 4, 3.3};
+        JavaApplication1 instance = new JavaApplication1();
+        instance.reverse(arr);
+        assertArrayEquals(expResult, arr,0.01);
+    }
+    
     /**
      * Test of extendList method, of class JavaApplication1.
      */
@@ -362,14 +449,14 @@ public class JavaApplication1Test {
     @Test
     public void testAbsFreqz() {
         System.out.println("absFreqz");
-        double[] b = {1,2,3,1,4};
-        double[] w = DSP.irange(0.0, Math.PI/4, Math.PI/8);;
-        double[] expResult = null;
-        double[] result = JavaApplication1.absFreqz(b, w);
-        assertArrayEquals(expResult, result,0.01);
+        double[] b = DSP.range(0,10000);
+        int N = 4096;
+        //double[] expResult = null;
+        double[] result = JavaApplication1.absFreqz(b, N);
+        //assertArrayEquals(expResult, result,0.01);
         DSP.printArray(result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        //fail("The test case is a prototype.");
     }
 
     /**
@@ -454,16 +541,88 @@ public class JavaApplication1Test {
         
     }
 
-    
+    /**
+     * Test of findSignalPeaks method, of class JavaApplication1.
+     */
+    @Test
+    public void testFindSignalPeaks_5args() {
+        System.out.println("findSignalPeaks");
+        double[] signal1 = null;
+        double[] signal2 = null;
+        double fPrev = 0.0;
+        double range = 0.0;
+        double fSampling = 0.0;
+        double expResult = 0.0;
+        double result = JavaApplication1.findSignalPeaks(signal1, signal2, fPrev, range, fSampling);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
 
-    
+    /**
+     * Test of findSignalPeaks method, of class JavaApplication1.
+     */
+    @Test
+    public void testFindSignalPeaks_6args() {
+        System.out.println("findSignalPeaks");
+        double[] signal1 = null;
+        double[] signal2 = null;
+        double[] signal3 = null;
+        double fPrev = 0.0;
+        double range = 0.0;
+        double fSampling = 0.0;
+        double expResult = 0.0;
+        double result = JavaApplication1.findSignalPeaks(signal1, signal2, signal3, fPrev, range, fSampling);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
 
-    
+    /**
+     * Test of callNLMS method, of class JavaApplication1.
+     */
+    @Test
+    public void testCallNLMS() {
+        System.out.println("callNLMS");
+        double[] signal1 = null;
+        double[] signal2 = null;
+        double freq = 0.0;
+        double range = 0.0;
+        double fSampling = 0.0;
+        double expResult = 0.0;
+        double result = JavaApplication1.callNLMS(signal1, signal2, freq, range, fSampling);
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
 
-    
 
+    /**
+     * Test of zeroPad method, of class JavaApplication1.
+     */
+    @Test
+    public void testZeroPad() {
+        System.out.println("zeroPad");
+        double[] nsig = {2,5,3,1,7};
+        int i = 5;
+        double[] expResult = {2,5,3,1,7,0,0,0,0,0};
+        double[] result = JavaApplication1.zeroPad(nsig, i);
+        assertArrayEquals(expResult, result,0.01);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
     
-
+    @Test
+    public void testMaxFind() {
+        System.out.println("maxFind");
+        double[] nsig = {2,5,3,1,7};
+        int i = 5;
+        double[] expResult = {2,5,3,1,7,0,0,0,0,0};
+        double[] result = JavaApplication1.zeroPad(nsig, i);
+        assertArrayEquals(expResult, result,0.01);
+        // TODO review the generated test code and remove the default call to fail.
+        //fail("The test case is a prototype.");
+    }
 
    
 }
