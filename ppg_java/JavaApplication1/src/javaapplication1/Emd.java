@@ -192,7 +192,7 @@ public class Emd {
         
         Emd emd = new Emd();
         EmdData emdData = new EmdData();
-        int order = 4;
+        int order = 10;
         emd.emdCreate(emdData, data.length, order, 20, 0);
         emd.emdDecompose(emdData, data);
         return emdData.imfs[imfToChose];

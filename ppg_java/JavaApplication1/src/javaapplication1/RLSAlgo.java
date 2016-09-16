@@ -85,9 +85,7 @@ public class RLSAlgo {
             
             den += lambda;
             
-            
             gn = DSP.times(zn, 1/den);
-            
             
             an = d[i] - Matrix.dot(this.weights, xn);
             
@@ -105,6 +103,17 @@ public class RLSAlgo {
     
     public double[] getWeights(){
         return this.weights;
+    }
+    
+    public double[] e(){
+        double[] e = new double[this.x.length];
+        
+        for (int i = 0; i < this.x.length; i++) {
+            double[] xn = getXN(x, i , this.nOrder);
+            e[i] = d[i] - Matrix.dot(xn, this.weights);   
+        }
+        
+        return e;
     }
     
     public double[] filter(){

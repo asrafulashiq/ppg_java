@@ -1017,11 +1017,7 @@ import java.util.ArrayList;
  
          System.out.println(".......");
          
-        double[] b_ = {1,2,3,1,4};
-        double[] w = DSP.irange(0.0, 4,1);
-        double[] result = JavaApplication1.absFreqz(b_, w);
-        DSP.printArray(w);
-        DSP.printArray(result);
+       
          
      }
 
